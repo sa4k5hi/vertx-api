@@ -9,9 +9,12 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+// import io.vertx.ext.web.handler.*;
+// import io.vertx.ext.web.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.io.*;
 
 public class App extends AbstractVerticle {
 
@@ -28,23 +31,24 @@ public class App extends AbstractVerticle {
         HttpServerResponse response = routingContext.response();
         response
             .putHeader("content-type", "text/html")
-            .end("<h1>Operations to Perform</h1><ul><li>To see all names- Get Request- http://localhost:8081/api/peers</li><li>To delete a name- Delete Request- http://localhost:8081/api/peers/id where id is between 0-3</li></ul>");
+            .end("<h1>Operations to Perform</h1><ul><li>To see all names- Get Request- http://localhost:8080/api/peers</li><li>To delete a name- Delete Request- http://localhost:8080/api/peers/id where id is between 0-3</li></ul>");
         });
-
+        
         router.get("/api/peers").handler(this::getAll);
         router.route().handler(BodyHandler.create());
+        router.post("/api/peers/:name").handler(this::addOne);
         router.delete("/api/peers/:id").handler(this::deleteOne);
 
         vertx
             .createHttpServer()
             .requestHandler(router::accept)
             .listen(
-                config().getInteger("http.port", 8081), 
+                config().getInteger("http.port", 8080), 
                 result -> {
                     if (result.succeeded()) {
                       fut.complete();
                     } else {
-                      fut.fail(result.cause());
+                        fut.fail(result.cause());
                     }
                 }
             );
@@ -54,6 +58,20 @@ public class App extends AbstractVerticle {
         routingContext.response()
             .putHeader("content-type", "application/json; charset=utf-8")
             .end(Json.encodePrettily(People.values()));
+    }
+
+    private void addOne(RoutingContext routingContext) {
+        String name = routingContext.request().getParam("name");
+        int ind=name.indexOf('-');
+        String fn = name.substring(0,ind);
+        String ln = name.substring(ind+1);
+        Peers NN = new Peers(fn,ln);
+        People.put(NN.getId(), NN);
+        routingContext.response()
+            .setStatusCode(201)
+            .putHeader("content-type", "application/json; charset=utf-8")
+            .end(Json.encodePrettily(NN));
+
     }
 
     private void deleteOne(RoutingContext routingContext) {

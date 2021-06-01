@@ -15,6 +15,10 @@ public class Peers {
         this.LastName=LastName;
     }
 
+    public Peers() {
+        this.id=COUNTER.getAndIncrement();
+    }
+
     public String getFirstName() {
         return FirstName;
     }
@@ -25,5 +29,13 @@ public class Peers {
 
     public int getId() {
         return id;
+    }
+
+    public void setFirstName(String FirstName) {
+        this.FirstName= FirstName;
+    }
+
+    public void setLastName(String LastName) {
+        this.LastName= LastName;
     }
 }

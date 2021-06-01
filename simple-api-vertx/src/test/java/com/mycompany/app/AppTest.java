@@ -37,7 +37,7 @@ public class AppTest {
     
     final Async async = context.async();
 
-    vertx.createHttpClient().getNow(8081, "localhost", "/", response -> {
+    vertx.createHttpClient().getNow(8080, "localhost", "/", response -> {
       response.handler(body -> {
         context.assertTrue(body.toString().contains("Operations"));
         async.complete();
